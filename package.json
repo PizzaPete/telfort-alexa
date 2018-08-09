@@ -2,7 +2,7 @@
 	"name": "telfort-alexa",
 	"version": "1.0.0",
 	"description": "",
-	"main": "index.js",
+	"main": "handler.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
@@ -17,6 +17,12 @@
 	},
 	"homepage": "https://github.com/PizzaPete/telfort-alexa#readme",
 	"dependencies": {
-		"ask-sdk": "^2.0.5"
+		"ask-sdk": "^2.0.5",
+		"ask-sdk-core": "^2.0.7",
+		"aws-sam-local": "^0.2.11",
+		"serverless": "^1.30.0"
+	},
+	"devDependencies": {
+		"serverless-sam": "^0.1.0"
 	}
 }

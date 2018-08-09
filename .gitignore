@@ -1,2 +1,10 @@
-# dependencies
-/node_modules
+# package directories
+node_modules
+jspm_packages
+
+# Serverless directories
+.serverless
+template.yml
+
+# System files
+.DS_Store
