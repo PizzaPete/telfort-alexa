@@ -1,22 +1,22 @@
 {
-  "name": "telfort-tv-guide",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/PizzaPete/telfort-tv-guide.git"
-  },
-  "author": "Pieter Bogaerts",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/PizzaPete/telfort-tv-guide/issues"
-  },
-  "homepage": "https://github.com/PizzaPete/telfort-tv-guide#readme",
-  "dependencies": {
-    "ask-sdk": "^2.0.5"
-  }
+	"name": "telfort-alexa",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/PizzaPete/telfort-alexa.git"
+	},
+	"author": "Pieter Bogaerts",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/PizzaPete/telfort-alexa/issues"
+	},
+	"homepage": "https://github.com/PizzaPete/telfort-alexa#readme",
+	"dependencies": {
+		"ask-sdk": "^2.0.5"
+	}
 }
