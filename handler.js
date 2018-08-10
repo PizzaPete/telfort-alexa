@@ -1,4 +1,7 @@
+require('dotenv').config();
 const Alexa = require('ask-sdk-core');
+const https = require('https');
+const querystring = require('querystring');
 
 const skillBuilder = Alexa.SkillBuilders.custom();
 
@@ -40,6 +43,42 @@ const ErrorHandler = {
             .reprompt('Sorry, I can\'t understand the command. Please say again.')
             .getResponse();
     }
+};
+
+module.exports.http = (event, context) => {
+    context.callbackWaitsForEmptyEventLoop = false;
+    const postData = querystring.stringify({
+        user: process.env.USERNAME,
+        password: process.env.PASSWORD
+    });
+
+    let headers = {
+        Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded'
+    };
+
+    const options = {
+        hostname: process.env.HOST,
+        port: 443,
+        path: '/gateway-team-white-uat/sso/auth',
+        method: 'POST',
+        headers: headers,
+        data: postData
+    };
+
+    const req = https.request(options, (res) => {
+        console.log('statusCode:', res.statusCode);
+        console.log('headers:', res.headers);
+      
+        res.on('data', (d) => {
+          process.stdout.write(d);
+        });
+    });
+      
+    req.on('error', (e) => {
+        console.error(e);
+    });
+    req.end();
 };
 
 module.exports.hello = skillBuilder
