@@ -54,10 +54,8 @@ provider:
 #    - exclude-me-dir/**
 
 functions:
-  hello:
-    handler: handler.hello
-  http:
-    handler: handler.http
+  launch:
+    handler: handler.launch
     timeout: 15
 
 #    The following are a few example events you can configure

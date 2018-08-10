@@ -13,13 +13,38 @@ const LaunchRequestHandler = {
         return handlerInput.requestEnvelope.request.type === 'LaunchRequest';
     },
     handle(handlerInput) {
-        const speechText = login();
+        const speechText = 'What do you want to know?'
 
         return handlerInput.responseBuilder
             .speak(speechText)
             .reprompt(speechText)
             .withSimpleCard('Hello World', speechText)
             .getResponse();
+    }
+};
+
+const UsageIntentHandler = {
+    canHandle(handlerInput) {
+        return handlerInput.requestEnvelope.request.type === 'IntentRequest' 
+            && handlerInput.requestEnvelope.request.intent.name === 'UsageIntent';
+    },
+    handle(handlerInput) {
+        console.log('In Handler');
+        return new Promise((resolve, reject) => {
+             getUsage()
+                .then((speechText) => {
+                    resolve(handlerInput.responseBuilder
+                        .speak(speechText)
+                        .withSimpleCard('Hello World', speechText)
+                        .getResponse());
+                })
+                .catch((err) => {
+                    resolve(handlerInput.responseBuilder
+                        .speak('Ophalen van je verbruik is mislukt')
+                        .withSimpleCard('Error', err)
+                        .getResponse());
+                });
+        });
     }
 };
 
@@ -48,28 +73,75 @@ const ErrorHandler = {
     }
 };
 
-module.exports.hello = skillBuilder
+module.exports.launch = skillBuilder
 	.addRequestHandlers(
 		LaunchRequestHandler,
-		SessionEndedRequestHandler
+        SessionEndedRequestHandler,
+        UsageIntentHandler
 	)
 	.addErrorHandlers(ErrorHandler)
 	.lambda();
 
-module.exports.http = () => {
-    getToken();
-};
+function getUsage() {
+    return new Promise((resolve, reject) => {
+        getToken()
+            .then((token) => {
+                getUsageSummary(token)
+                    .then((result) => {
+                        let resultText = 'Bruhhhhhhhhh, je hebt nog ';
+                        result.subscriptionUsage.forEach(element => {
+                            if(element.bundleType === 'DATA') {
+                                if(element.unlimited) {
+                                    resultText += `onbeperkt data, `;
+                                } else {
+                                    resultText += `${element.remainingUnitsLabel}, `;
+                                }
+                            }
+                            if(element.bundleType === 'MINUTES') {
+                                if(element.unlimited) {
+                                    resultText += `onbeperkt bellen, `;
+                                } else {
+                                    resultText += `${element.remainingUnits} minuten, `;
+                                }
+                            }
+                            if(element.bundleType === 'TEXT') {
+                                if(element.unlimited) {
+                                    resultText += `onbeperkt smsen. `;
+                                    resultText += `Dus waarom stuur je je moeder geen berichtje? `;
+                                } else {
+                                    resultText += `${element.remainingUnitsLabel}.`;
+                                }
+                            }
+                        });
+                        resolve(resultText);
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                        reject(err);
+                    });
+            })
+            .catch((err) => {
+                console.log(err);
+                reject(err);
+            });
+    });
+}
 
 function getToken() {
-    console.log("Fetching token...");
-    if (!token) {
-        login()
-            .then((result) => {
-                console.log("token fetched: " + result.token);
-                getUsageSummary(result.token);
-            })
-            .catch((err) => console.log(err));
-    }
-
-    return token;
+    return new Promise((resolve, reject) => {
+        if (!token) {
+            console.log('Fetching token...');  
+            login()
+                .then((result) => {
+                    console.log('Token fetched');
+                    token = result.token;
+                    resolve(result.token);
+                })
+                .catch((err) => {
+                    reject(err); 
+                });
+        } else {
+            resolve(token);
+        }
+    });
 }

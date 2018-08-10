@@ -30,7 +30,6 @@ module.exports.login = () => {
                 result += chunk;
             });
             res.on('end', function () {
-                console.log(result);
                 resolve(JSON.parse(result));
             });
             res.on('error', function (err) {
