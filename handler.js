@@ -54,23 +54,48 @@ module.exports.http = (event, context) => {
 
     let headers = {
         Accept: 'application/json',
-        'Content-Type': 'application/x-www-form-urlencoded'
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': postData.length
     };
 
     const options = {
         hostname: process.env.HOST,
         port: 443,
-        path: '/gateway-team-white-uat/sso/auth',
+        path: `${process.env.PATHPREFIX}sso/auth`,
         method: 'POST',
         headers: headers,
         data: postData
     };
 
-    const req = https.request(options, (res) => {
+    // request object
+    var req = https.request(options, function (res) {
+        var result = '';
+        res.on('data', function (chunk) {
+            result += chunk;
+        });
+        res.on('end', function () {
+            console.log(result);
+        });
+        res.on('error', function (err) {
+            console.log(err);
+        })
+    });
+
+    // req error
+    req.on('error', function (err) {
+        console.log(err);
+    });
+
+    //send request witht the postData form
+    req.write(postData);
+    req.end();
+
+    /*const req = https.request(options, (res) => {
         console.log('statusCode:', res.statusCode);
         console.log('headers:', res.headers);
       
         res.on('data', (d) => {
+            console.log(d);
           process.stdout.write(d);
         });
     });
@@ -78,7 +103,7 @@ module.exports.http = (event, context) => {
     req.on('error', (e) => {
         console.error(e);
     });
-    req.end();
+    req.end();*/
 };
 
 module.exports.hello = skillBuilder
