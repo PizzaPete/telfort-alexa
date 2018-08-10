@@ -1,5 +1,4 @@
 const https = require('https');
-const querystring = require('querystring');
 
 module.exports.getUsageSummary = (token) => {
     return new Promise((resolve, reject) => {
@@ -38,5 +37,36 @@ module.exports.getUsageSummary = (token) => {
         });
 
         req.end();
+    });
+};
+
+module.exports.formatUsageSummary = (usage) => {
+    return new Promise((resolve, reject) => {
+        let resultText = 'Bruhhhhhhhhh, je hebt nog ';
+        usage.subscriptionUsage.forEach(element => {
+            if(element.bundleType === 'DATA') {
+                if(element.unlimited) {
+                    resultText += `onbeperkt data, `;
+                } else {
+                    resultText += `${element.remainingUnitsLabel}, `;
+                }
+            }
+            if(element.bundleType === 'MINUTES') {
+                if(element.unlimited) {
+                    resultText += `onbeperkt bellen, `;
+                } else {
+                    resultText += `${element.remainingUnits} minuten, `;
+                }
+            }
+            if(element.bundleType === 'TEXT') {
+                if(element.unlimited) {
+                    resultText += `onbeperkt smsen. `;
+                    resultText += `Dus waarom stuur je je moeder geen berichtje? `;
+                } else {
+                    resultText += `${element.remainingUnitsLabel}.`;
+                }
+            }
+        });
+        resolve(resultText);
     });
 };

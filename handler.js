@@ -1,5 +1,5 @@
 const {login} = require('./auth.js');
-const {getUsageSummary} = require('./usage.js');
+const {formatUsageSummary, getUsageSummary} = require('./usage.js');
 
 require('dotenv').config();
 const Alexa = require('ask-sdk-core');
@@ -83,48 +83,10 @@ module.exports.launch = skillBuilder
 	.lambda();
 
 function getUsage() {
-    return new Promise((resolve, reject) => {
-        getToken()
-            .then((token) => {
-                getUsageSummary(token)
-                    .then((result) => {
-                        let resultText = 'Bruhhhhhhhhh, je hebt nog ';
-                        result.subscriptionUsage.forEach(element => {
-                            if(element.bundleType === 'DATA') {
-                                if(element.unlimited) {
-                                    resultText += `onbeperkt data, `;
-                                } else {
-                                    resultText += `${element.remainingUnitsLabel}, `;
-                                }
-                            }
-                            if(element.bundleType === 'MINUTES') {
-                                if(element.unlimited) {
-                                    resultText += `onbeperkt bellen, `;
-                                } else {
-                                    resultText += `${element.remainingUnits} minuten, `;
-                                }
-                            }
-                            if(element.bundleType === 'TEXT') {
-                                if(element.unlimited) {
-                                    resultText += `onbeperkt smsen. `;
-                                    resultText += `Dus waarom stuur je je moeder geen berichtje? `;
-                                } else {
-                                    resultText += `${element.remainingUnitsLabel}.`;
-                                }
-                            }
-                        });
-                        resolve(resultText);
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                        reject(err);
-                    });
-            })
-            .catch((err) => {
-                console.log(err);
-                reject(err);
-            });
-    });
+    return Promise.resolve()
+        .then(getToken)
+        .then(getUsageSummary)
+        .then(formatUsageSummary);
 }
 
 function getToken() {
