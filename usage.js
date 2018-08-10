@@ -1,26 +1,20 @@
 const https = require('https');
 const querystring = require('querystring');
 
-module.exports.login = () => {
+module.exports.getUsageSummary = (token) => {
     return new Promise((resolve, reject) => {
-        const postData = querystring.stringify({
-            user: process.env.USERNAME,
-            password: process.env.PASSWORD
-        });
 
         let headers = {
             Accept: 'application/json',
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Content-Length': postData.length
+            Cookie : 'SESSION=' + token
         };
 
         const options = {
             hostname: process.env.HOST,
             port: 443,
-            path: `${process.env.IDPATHPREFIX}sso/auth`,
-            method: 'POST',
-            headers: headers,
-            data: postData
+            path: `${process.env.PATHPREFIX}mobile/postpaid/v5/usage/summary`,
+            method: 'GET',
+            headers: headers
         };
 
         // request object
@@ -35,7 +29,7 @@ module.exports.login = () => {
             });
             res.on('error', function (err) {
                 console.log(err);
-                reject(new Error('Login call failed' + err));
+                reject(new Error('Invoices call failed' + err));
             })
         });
 
@@ -44,8 +38,6 @@ module.exports.login = () => {
             reject(err);
         });
 
-        //send request witht the postData form
-        req.write(postData);
         req.end();
     });
 };

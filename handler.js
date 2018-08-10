@@ -1,4 +1,5 @@
 const {login} = require('./auth.js');
+const {getUsageSummary} = require('./usage.js');
 
 require('dotenv').config();
 const Alexa = require('ask-sdk-core');
@@ -56,15 +57,17 @@ module.exports.hello = skillBuilder
 	.lambda();
 
 module.exports.http = () => {
-  console.log("HTTP method called.." + getToken());
+    getToken();
 };
-
 
 function getToken() {
     console.log("Fetching token...");
     if (!token) {
         login()
-            .then((result) => console.log("token fetched: " + result.token))
+            .then((result) => {
+                console.log("token fetched: " + result.token);
+                getUsageSummary(result.token);
+            })
             .catch((err) => console.log(err));
     }
 
