@@ -26,7 +26,6 @@ module.exports.getUsageSummary = (token) => {
                 resolve(JSON.parse(result));
             });
             res.on('error', function (err) {
-                console.log(err);
                 reject(new Error('Invoices call failed' + err));
             })
         });
@@ -42,31 +41,31 @@ module.exports.getUsageSummary = (token) => {
 
 module.exports.formatUsageSummary = (usage) => {
     return new Promise((resolve, reject) => {
-        let resultText = 'Bruhhhhhhhhh, je hebt nog ';
+        let resultText = 'You\'ve got ';
         usage.subscriptionUsage.forEach(element => {
             if(element.bundleType === 'DATA') {
                 if(element.unlimited) {
-                    resultText += `onbeperkt data, `;
+                    resultText += `unlimited data `;
                 } else {
                     resultText += `${element.remainingUnitsLabel}, `;
                 }
             }
             if(element.bundleType === 'MINUTES') {
                 if(element.unlimited) {
-                    resultText += `onbeperkt bellen, `;
+                    resultText += `unlimited phonecalls `;
                 } else {
-                    resultText += `${element.remainingUnits} minuten, `;
+                    resultText += `${element.remainingUnits} minutes, `;
                 }
             }
             if(element.bundleType === 'TEXT') {
                 if(element.unlimited) {
-                    resultText += `onbeperkt smsen. `;
-                    resultText += `Dus waarom stuur je je moeder geen berichtje? `;
+                    resultText += `unlimited texting `;
                 } else {
-                    resultText += `${element.remainingUnitsLabel}.`;
+                    resultText += `${element.remainingUnitsLabel} `;
                 }
             }
         });
+        resultText += `left.`;
         resolve(resultText);
     });
 };

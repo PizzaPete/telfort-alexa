@@ -1,4 +1,4 @@
-const {login} = require('./auth.js');
+const {login, getUserDetails} = require('./auth.js');
 const {formatUsageSummary, getUsageSummary} = require('./usage.js');
 
 require('dotenv').config();
@@ -6,32 +6,42 @@ const Alexa = require('ask-sdk-core');
 
 const skillBuilder = Alexa.SkillBuilders.custom();
 
-let token = null;
+let userPassword = null;
+let userUsername = null;
+let userToken = null;
 
 const LaunchRequestHandler = {
     canHandle(handlerInput) {
         return handlerInput.requestEnvelope.request.type === 'LaunchRequest';
     },
     handle(handlerInput) {
+        const { accessToken } = handlerInput.requestEnvelope.context.System.user;
         const speechText = 'What do you want to know?'
 
-        return handlerInput.responseBuilder
-            .speak(speechText)
-            .reprompt(speechText)
-            .withSimpleCard('Hello World', speechText)
-            .getResponse();
+        if (!accessToken) {
+            speechText = 'You must authenticate with your Amazon Account to use this skill. I sent instructions for how to do this in your Alexa App';
+            return handlerInput.responseBuilder
+                .speak(speechText)
+                .withLinkAccountCard()
+                .getResponse();
+          } else {
+            return handlerInput.responseBuilder
+                .speak(speechText)
+                .reprompt(speechText)
+                .withSimpleCard('Hello World', speechText)
+                .getResponse();
+        }
     }
 };
 
 const UsageIntentHandler = {
     canHandle(handlerInput) {
-        return handlerInput.requestEnvelope.request.type === 'IntentRequest' 
+        return handlerInput.requestEnvelope.request.type === 'IntentRequest'
             && handlerInput.requestEnvelope.request.intent.name === 'UsageIntent';
     },
     handle(handlerInput) {
-        console.log('In Handler');
         return new Promise((resolve, reject) => {
-             getUsage()
+             getUsage(handlerInput)
                 .then((speechText) => {
                     resolve(handlerInput.responseBuilder
                         .speak(speechText)
@@ -54,7 +64,7 @@ const SessionEndedRequestHandler = {
     },
     handle(handlerInput) {
         console.log(`Session ended with reason: ${handlerInput.requestEnvelope.request.reason}`);
-    
+
         return handlerInput.responseBuilder.getResponse();
     }
 };
@@ -65,7 +75,7 @@ const ErrorHandler = {
     },
     handle(handlerInput, error) {
         console.log(`Error handled: ${error.message}`);
-    
+
         return handlerInput.responseBuilder
             .speak('Sorry, I can\'t understand the command. Please say again.')
             .reprompt('Sorry, I can\'t understand the command. Please say again.')
@@ -82,28 +92,45 @@ module.exports.launch = skillBuilder
 	.addErrorHandlers(ErrorHandler)
 	.lambda();
 
-function getUsage() {
+function getUsage(handlerInput) {
     return Promise.resolve()
+        .then(getLoginDetails(handlerInput))
         .then(getToken)
         .then(getUsageSummary)
         .then(formatUsageSummary);
 }
 
-function getToken() {
+function getLoginDetails(handlerInput) {
     return new Promise((resolve, reject) => {
-        if (!token) {
-            console.log('Fetching token...');  
-            login()
+        if (!userPassword || !userUsername) {
+            getUserDetails(handlerInput)
                 .then((result) => {
-                    console.log('Token fetched');
-                    token = result.token;
+                    userPassword = result['https://alexa.telfort.nl/user_metadata'].password;
+                    userUsername = result.nickname;
+                    resolve(userPassword);
+                })
+                .catch((err) => {
+                    reject(err);
+                });
+        } else {
+            resolve(userPassword);
+        }
+    });
+}
+
+function getToken(handlerInput) {
+    return new Promise((resolve, reject) => {
+        if (!userToken) {
+            login(userUsername, userPassword)
+                .then((result) => {
+                    userToken = result.token;
                     resolve(result.token);
                 })
                 .catch((err) => {
-                    reject(err); 
+                    reject(err);
                 });
         } else {
-            resolve(token);
+            resolve(userToken);
         }
     });
 }
