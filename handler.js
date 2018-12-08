@@ -28,7 +28,7 @@ const LaunchRequestHandler = {
             return handlerInput.responseBuilder
                 .speak(speechText)
                 .reprompt(speechText)
-                .withSimpleCard('Hello World', speechText)
+                .withSimpleCard('How can I help', speechText)
                 .getResponse();
         }
     }
@@ -45,12 +45,12 @@ const UsageIntentHandler = {
                 .then((speechText) => {
                     resolve(handlerInput.responseBuilder
                         .speak(speechText)
-                        .withSimpleCard('Hello World', speechText)
+                        .withSimpleCard('Usage overview', speechText)
                         .getResponse());
                 })
                 .catch((err) => {
                     resolve(handlerInput.responseBuilder
-                        .speak('Ophalen van je verbruik is mislukt')
+                        .speak('Fetching your usage failed.')
                         .withSimpleCard('Error', err)
                         .getResponse());
                 });
